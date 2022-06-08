@@ -1,0 +1,23 @@
+{
+  "name": "dreaming-proc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@googleapis/docs": "^0.4.1",
+    "googleapis": "^100.0.0",
+    "ws": "^8.7.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.3",
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.3"
+  }
+}
