@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "ts-node src/index.ts",
     "build": "tsc"
   },
   "author": "",
@@ -12,6 +12,8 @@
   "dependencies": {
     "@googleapis/docs": "^0.4.1",
     "googleapis": "^100.0.0",
+    "mongodb": "^4.7.0",
+    "mongoose": "^6.3.6",
     "ws": "^8.7.0"
   },
   "devDependencies": {
