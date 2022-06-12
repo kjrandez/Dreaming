@@ -2,24 +2,25 @@ import { google, youtube_v3 } from "googleapis";
 import { WebSocket } from "ws";
 import { ITranscription } from "./mongo_types";
 import { spawn } from "child_process";
+import YoutubeTranscript from "youtube-transcript";
 
 export default class Youtube {
     api: youtube_v3.Youtube;
-    scriptsOrigin: string;
+    //scriptsOrigin: string;
 
     constructor() {
         const apiKey = process.env.YOUTUBE_API_KEY;
         if (!apiKey) throw new Error("No youtube api key");
 
-        const scriptsPort = process.env.SCRIPTS_PORT;
-        if (!scriptsPort) throw new Error("No scripts port");
-        this.scriptsOrigin = `ws://localhost:${scriptsPort}`;
+        //const scriptsPort = process.env.SCRIPTS_PORT;
+        //if (!scriptsPort) throw new Error("No scripts port");
+        //this.scriptsOrigin = `ws://localhost:${scriptsPort}`;
 
         this.api = google.youtube({ version: "v3", auth: apiKey });
 
-        spawn("python3", ["scripts/fetch_captions.py", `${scriptsPort}`], {
-            detached: true
-        });
+        //spawn("python3", ["scripts/fetch_captions.py", `${scriptsPort}`], {
+        //    detached: true
+        //});
     }
 
     async getVideo(id: string) {
@@ -35,7 +36,19 @@ export default class Youtube {
         return result.data?.items?.[0];
     }
 
-    async getVideoTranscript(videoId: string) {
+    async getVideoTranscript(videoId: string): Promise<ITranscription[]> {
+        // A Python version of this module also exists
+        const trs = await YoutubeTranscript.fetchTranscript(videoId, {
+            lang: "es"
+        });
+        return trs.map((e) => ({
+            text: e.text,
+            start: e.offset,
+            duration: e.duration
+        }));
+    }
+
+    /*async getVideoTranscript(videoId: string) {
         return new Promise<ITranscription[] | undefined>((resolve, _) => {
             const connection = new WebSocket(this.scriptsOrigin);
 
@@ -58,7 +71,7 @@ export default class Youtube {
                 }
             };
         });
-    }
+    }*/
 
     async getChannel(id: string) {
         const result = await this.api.channels.list({

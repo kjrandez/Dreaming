@@ -22,15 +22,16 @@ export class Analysis {
 
     getStats(transcript: ITranscription[]): IVideoStats {
         const words = this.wordsFromTranscript(transcript);
+        const knownWords = words.filter((word) => word in this.dict);
 
         return {
             speed: words.length / this.videoLength(transcript),
             diversity: this.averageUniqueWords(words),
-            lexicon: this.wordPopularity(words)
+            lexicon: this.averageWordPopularity(knownWords)
         };
     }
 
-    /*averageWordPopularity(words: string[], width = 500, percentile = 95) {
+    averageWordPopularity(words: string[], width = 500, percentile = 95) {
         if (words.length < width) {
             return this.wordPopularity(words, percentile);
         }
@@ -40,11 +41,10 @@ export class Analysis {
             acc += this.wordPopularity(words.slice(i, i + width), percentile);
         }
         return acc / i;
-    }*/
+    }
 
-    wordPopularity(words: string[], percentile = 95) {
-        const knownWords = words.filter((word) => word in this.dict);
-        const scores = knownWords.map((word) => this.dict[word]);
+    wordPopularity(words: string[], percentile: number) {
+        const scores = words.map((word) => this.dict[word]);
         scores.sort();
 
         const index = Math.trunc((scores.length * (100 - percentile)) / 100);
