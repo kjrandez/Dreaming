@@ -1,6 +1,6 @@
-import express, { response } from "express";
+import express from "express";
 import { Store } from "./store";
-import { connect, disconnect } from "mongoose";
+import { connect } from "mongoose";
 import cors from "cors";
 import { IVideo } from "./mongo_types";
 import dotenv from "dotenv";
