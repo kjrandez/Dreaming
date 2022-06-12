@@ -1,4 +1,2 @@
-processing/node_modules
-web-server/node_modules
-web-client/node_modules
+**/node_modules
 **/.env
