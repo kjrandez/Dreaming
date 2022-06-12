@@ -1,5 +1,6 @@
 import express, { response } from "express";
-import { getStore } from "./store";
+import { Store } from "./store";
+import { connect, disconnect } from "mongoose";
 import cors from "cors";
 import { IVideo } from "./mongo_types";
 import dotenv from "dotenv";
@@ -9,7 +10,11 @@ function apiVideoFromDbVideo(video: IVideo) {
         videoId: video.videoId,
         title: video.data.snippet?.title,
         sample: video.transcript[0]?.text,
-        score: 0.1
+        stats: {
+            diversity: video.stats?.diversity,
+            lexicon: video.stats?.lexicon,
+            speed: video.stats?.speed
+        }
     };
 }
 
@@ -18,10 +23,22 @@ async function init() {
 
     dotenv.config();
 
-    const app = express();
-    const store = await getStore();
+    const mongoPort = process.env.MONGO_PORT;
+    const mongoDb = process.env.MONGO_DATABASE;
+    if (!mongoDb || !mongoPort) throw new Error("No mongodb origin defined");
+    const mongoUri = `mongodb://localhost:${mongoPort}/${mongoDb}`;
 
-    app.use(cors({ origin: process.env.CORS_ORIGIN }));
+    await connect(mongoUri);
+    console.log("Connected to mongodb");
+
+    const store = new Store();
+
+    const app = express();
+
+    if (process.env.DEBUG == "1") {
+        const reactServerPort = process.env.REACT_SERVER_PORT;
+        app.use(cors({ origin: `http://localhost:${reactServerPort}` }));
+    }
 
     app.get("/list", async (req, res) => {
         try {
@@ -42,8 +59,10 @@ async function init() {
             return;
         }
 
+        const refresh = req.query.refresh ? true : false;
+
         try {
-            const result = await store.acquire(videoId);
+            const result = await store.acquire(videoId, refresh);
             console.log(result);
             const response = apiVideoFromDbVideo(result);
             res.json(response);
@@ -53,7 +72,7 @@ async function init() {
         }
     });
 
-    const port = process.env.PORT;
+    const port = process.env.API_PORT;
     app.listen(port, () => {
         console.log(`Listening on port ${port}.`);
     });

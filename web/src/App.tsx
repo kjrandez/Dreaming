@@ -1,10 +1,14 @@
 import React from "react";
-import "./App.css";
 
 interface IVideo {
     videoId: string;
     title: string;
     score: number;
+    stats: {
+        diversity: number;
+        lexicon: number;
+        speed: number;
+    };
 }
 
 interface IAppProps {}
@@ -38,7 +42,9 @@ class App extends React.Component<IAppProps, IAppState> {
             return (
                 <div className="App">
                     {this.state.content.map((video) => (
-                        <p>{video.title}</p>
+                        <p key={video.videoId}>
+                            {video.stats.lexicon} - {video.title}
+                        </p>
                     ))}
                 </div>
             );
